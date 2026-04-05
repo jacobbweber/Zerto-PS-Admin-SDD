@@ -6,7 +6,7 @@ function Invoke-ZertoRequest {
     .DESCRIPTION
         Constructs the full URI from module session state, appends optional query
         parameters, attaches the x-zerto-session auth header, and calls
-        Invoke-RestMethod. All public functions in InfraCode.ZertoZVM call this
+        Invoke-RestMethod. All public functions in ZertoZVM.APIWrapper call this
         function exclusively — they never build URIs or set headers themselves.
 
     .PARAMETER Endpoint
@@ -28,18 +28,18 @@ function Invoke-ZertoRequest {
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)]
-        [string] $Endpoint,
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('GET', 'POST', 'PUT', 'DELETE')]
+        [string]$Method,
+
+        [Parameter(Mandatory=$true)]
+        [string]$UriPath,
 
         [Parameter()]
-        [ValidateSet('Get', 'Post', 'Put', 'Delete', 'Patch')]
-        [string] $Method = 'Get',
+        [object]$Body,
 
         [Parameter()]
-        [hashtable] $QueryParameters,
-
-        [Parameter()]
-        [object] $Body
+        [hashtable]$QueryParameters
     )
 
     Assert-ZertoSession
@@ -48,7 +48,7 @@ function Invoke-ZertoRequest {
     # Build the full URI using UriBuilder to handle ports and trailing slashes
     # -------------------------------------------------------------------------
     $builder = [System.UriBuilder]::new($script:ZertoSession.BaseUri)
-    $cleanEndpoint = $Endpoint.TrimStart('/')
+    $cleanEndpoint = $UriPath.TrimStart('/')
     $builder.Path = "/vra/api/$($script:ZertoSession.ApiVersion)/$cleanEndpoint"
 
     # Append query string parameters if provided
@@ -88,14 +88,18 @@ function Invoke-ZertoRequest {
     try {
         Invoke-RestMethod @irmParams
     }
-    catch [System.Net.Http.HttpRequestException] {
-        $statusCode = $_.Exception.StatusCode.value__
-        $reason = $_.Exception.Message
-        throw [System.Net.Http.HttpRequestException]::new(
-            "Zerto API error [$statusCode] calling $Method $fullUri — $reason", $_.Exception
-        )
-    }
     catch {
-        throw
+        $ex = $_.Exception
+        $statusCode = 'Unknown'
+        if ($null -ne $ex.Response -and $null -ne $ex.Response.StatusCode) {
+            $statusCode = [int]$ex.Response.StatusCode
+        }
+        elseif ($ex.GetType().Name -eq 'HttpRequestException' -and $null -ne $ex.StatusCode) {
+            $statusCode = [int]$ex.StatusCode
+        }
+        
+        throw [System.Management.Automation.RuntimeException]::new(
+            "Zerto API error [$statusCode] calling $Method $fullUri — $($ex.Message)", $ex
+        )
     }
 }

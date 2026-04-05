@@ -45,15 +45,17 @@ function Get-ZertoVPG {
     )
 
     process {
+        Assert-ZertoSession
+
         if ($PSCmdlet.ParameterSetName -eq 'ById') {
-            Invoke-ZertoRequest -Endpoint "vpgs/$VpgIdentifier"
+            Invoke-ZertoRequest -Method 'GET' -UriPath "vpgs/$VpgIdentifier"
         }
         else {
             $query = @{}
             if ($Name) { $query.name = $Name }
             if ($Status) { $query.status = $Status }
 
-            Invoke-ZertoRequest -Endpoint 'vpgs' -QueryParameters $query
+            Invoke-ZertoRequest -Method 'GET' -UriPath 'vpgs' -QueryParameters $query
         }
     }
 }

@@ -1,0 +1,33 @@
+{
+  "base": {
+    "logging": {
+      "paths": {
+        "logdir": "C:\\Logs\\Zerto",
+        "archive": "C:\\Logs\\Zerto\\Archive",
+        "state": "C:\\Logs\\Zerto\\State",
+        "telemetry": "C:\\Logs\\Zerto\\Telemetry"
+      },
+      "filename": {
+        "syslog": "zvm_audit.log",
+        "devlog": "zvm_debug.log",
+        "telemetry": "zvm_telemetry.log",
+        "csv": "zvm_report.csv"
+      }
+    },
+    "telemetry": {
+      "hostname": "dynatrace.corp.local",
+      "username": "svc_zerto_auto",
+      "business_unit": "Storage-Ops"
+    },
+    "auth": {
+      "vmware_user": "C:\\Vault\\zvm_svc.txt",
+      "vmware_password": "C:\\Vault\\zvm_pwd.txt"
+    },
+    "email": {
+      "smpt_server": "smtp.corp.local"
+    },
+    "env": {
+      "zvm_uri": "https://zvm-prod.corp.local:9669"
+    }
+  }
+}

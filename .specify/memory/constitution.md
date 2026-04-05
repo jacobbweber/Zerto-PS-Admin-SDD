@@ -2,36 +2,27 @@
 ================================================================================
 SYNC IMPACT REPORT
 ================================================================================
-Version Change  : 0.0.0 (blank template) → 1.0.0
-Bump Rationale  : MAJOR — first ratification; all placeholders replaced with
-                  concrete governance content. No prior version to compare.
+Version Change  : 1.0.0 → 1.1.0
+Bump Rationale  : MINOR — Introduced physical structure prerequisites constraining module folders. Restricted Write-Log scoping completely avoiding cross-module overlaps.
 
 Modified Principles (old → new)
-  [PRINCIPLE_1_NAME] → Modern, Strict PowerShell
-  [PRINCIPLE_2_NAME] → The Module Rule
-  [PRINCIPLE_3_NAME] → The Global Configuration Contract
-  [PRINCIPLE_4_NAME] → Thread-Safe Dual-Stream Logging
-  [PRINCIPLE_5_NAME] → The "Doctor" Diagnostic Pattern
-  [PRINCIPLE_6_NAME] → Predictable Execution (added; template had 5 slots)
+  II. The Module Rule → (Added mandatory Module Physical Structure clause)
+  IV. Thread-Safe Dual-Stream Logging → (Restricted Write-Log utilization scoping)
 
 Added Sections
-  - Lifecycle Execution (The Data Pipeline) — replaces generic SECTION_2/3
+  - None
 
 Removed Sections
-  - Generic [SECTION_2_NAME] / [SECTION_3_NAME] template slots (superseded)
+  - None
 
 Templates Requiring Updates
-  ✅ .specify/memory/constitution.md            (this file — now complete)
-  ✅ .specify/templates/plan-template.md        (Constitution Check gate is
-       dynamic per-feature; no structural change needed)
-  ✅ .specify/templates/spec-template.md        (FR-XXX + user-story structure
-       aligns; no change required)
-  ✅ .specify/templates/tasks-template.md       (Pester/testing guidance aligns;
-       Phase labels align with PS module structure; no change required)
+  ✅ .specify/memory/constitution.md            (this file)
+  ✅ .specify/templates/plan-template.md        (no structural change needed)
+  ✅ .specify/templates/spec-template.md        (no change required)
+  ✅ .specify/templates/tasks-template.md       (no change required)
 
 Deferred TODOs
-  - RATIFICATION_DATE: Set to today (2026-04-05) as first formal adoption date.
-  - No remaining unexplained bracket tokens.
+  - None
 ================================================================================
 -->
 
@@ -69,6 +60,8 @@ All code MUST adhere to the highest standards of the PowerShell 7.5+ ecosystem.
 
 Logic MUST be encapsulated in modules; controller scripts MUST only orchestrate.
 
+- **Module Physical Structure**: Local Modules MUST live under `.\src\modules\[name]`. All folders pertaining to the module (Public, Private, Tests, Class, Example, etc.) MUST live natively inside that identical single module folder entirely to eliminate fragmentation contextually.
+
 - **`ZertoZVM.APIWrapper`**: Pure REST API calls (Method / URI / Body) for the Zerto API only.
   No business logic permitted.
 - **`ZertoZVM.Core`**: Zerto-specific business logic, utility functions, and output formatters.
@@ -81,7 +74,7 @@ Logic MUST be encapsulated in modules; controller scripts MUST only orchestrate.
 - **10% Logic Limit**: Controller scripts MUST NOT exceed 10% unique logic density; all
   substantive logic belongs in a module.
 - **Source of Truth**: The `.specify/` directory is the sole authority for standards and rules.
-  The `docs/` folder MUST be ignored by AI tooling unless explicitly directed to a specific
+  The `.\docs\*` folder MUST be ignored by AI tooling unless explicitly directed to a specific
   file for a single, named task.
 
 ### III. The Global Configuration Contract
@@ -99,7 +92,7 @@ The following schema keys are **mandatory** — any script that omits them is no
 
 ### IV. Thread-Safe Dual-Stream Logging
 
-All logging MUST be centralized via the `Write-Log` function from the `ZertoZVM.Core` module.
+`Write-Log` is ONLY to be utilized within Controller Scripts, and the `ZertoZVM.Core` PS Module. Other modules (e.g., wrappers) MUST utilize native streams (`Write-Verbose`, `Write-Warning`) to prevent cross-module dependencies. All compliant logging MUST be centralized via the `Write-Log` function from `ZertoZVM.Core`.
 
 **Signature**:
 ```
@@ -179,4 +172,4 @@ contributors and AI tooling.
   referenced for a single, named task.
 - **Runtime Guidance**: Use `.specify/` documents for all runtime development guidance.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-05 | **Last Amended**: 2026-04-05
+**Version**: 1.1.0 | **Ratified**: 2026-04-05 | **Last Amended**: 2026-04-05

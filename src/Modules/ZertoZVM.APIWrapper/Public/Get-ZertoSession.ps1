@@ -1,7 +1,7 @@
 function Get-ZertoSession {
     <#
     .SYNOPSIS
-        Returns the current InfraCode.ZertoZVM session state.
+        Returns the current ZertoZVM.APIWrapper session state.
 
     .DESCRIPTION
         Outputs the active session configuration (host, version, connection status).

@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    InfraCode.ZertoZVM — PowerShell API Wrapper for the Zerto ZVM REST API.
+    ZertoZVM.APIWrapper — PowerShell API Wrapper for the Zerto ZVM REST API.
 
 .DESCRIPTION
     Provides a clean, session-based interface to the Zerto ZVM REST API (v1).
@@ -15,25 +15,39 @@
         - Public/               : User-facing cmdlets (exported)
 
 .NOTES
-    Module Name : InfraCode.ZertoZVM
+    Module Name : ZertoZVM.APIWrapper
     Author      : InfraCode
     Version     : 1.0.0
 #>
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
 
 # =============================================================================
 # 1. Module-Scoped Session State
 # =============================================================================
 $script:ZertoSession = @{
-    BaseUri              = $null   # e.g. "https://zvm.example.com:9669"
+    BaseUri              = [string]::Empty
     ApiVersion           = 'v1'
-    Headers              = @{}     # Contains x-zerto-session token after Connect-ZertoZVM
+    Headers              = @{}
     SkipCertificateCheck = $false
     Connected            = $false
+    TokenTimestamp       = [DateTime]::MinValue
+    CachedCredential     = $null
 }
 
 $script:ModuleRoot = $PSScriptRoot
-$script:PrivatePath = Join-Path $PSScriptRoot 'Private'
-$script:PublicPath = Join-Path $PSScriptRoot 'Public'
+if (-not (Test-Path "$script:ModuleRoot\Private" -ErrorAction SilentlyContinue)) {
+    if ($PSCommandPath) {
+        $script:ModuleRoot = Split-Path -Parent $PSCommandPath
+    } elseif ($MyInvocation.MyCommand.Path) {
+        $script:ModuleRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+    } else {
+        $script:ModuleRoot = "$pwd\src\Modules\ZertoZVM.APIWrapper"
+    }
+}
+$script:PrivatePath = Join-Path $script:ModuleRoot 'Private'
+$script:PublicPath = Join-Path $script:ModuleRoot 'Public'
 
 # =============================================================================
 # 2. Dot-Source Private Helpers
@@ -42,10 +56,10 @@ if (Test-Path $script:PrivatePath) {
     foreach ($file in Get-ChildItem -Path $script:PrivatePath -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue) {
         try {
             . $file.FullName
-            Write-Verbose "InfraCode.ZertoZVM: Loaded private function '$($file.BaseName)'"
+            Write-Verbose "ZertoZVM.APIWrapper: Loaded private function '$($file.BaseName)'"
         }
         catch {
-            Write-Error "InfraCode.ZertoZVM: Failed to load private function '$($file.FullName)': $_"
+            Write-Error "ZertoZVM.APIWrapper: Failed to load private function '$($file.FullName)': $_"
         }
     }
 }
@@ -57,10 +71,10 @@ if (Test-Path $script:PublicPath) {
     foreach ($file in Get-ChildItem -Path $script:PublicPath -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue) {
         try {
             . $file.FullName
-            Write-Verbose "InfraCode.ZertoZVM: Loaded public function '$($file.BaseName)'"
+            Write-Verbose "ZertoZVM.APIWrapper: Loaded public function '$($file.BaseName)'"
         }
         catch {
-            Write-Error "InfraCode.ZertoZVM: Failed to load public function '$($file.FullName)': $_"
+            Write-Error "ZertoZVM.APIWrapper: Failed to load public function '$($file.FullName)': $_"
         }
     }
 }
@@ -75,5 +89,5 @@ else { @() }
 
 if ($publicFunctions.Count -gt 0) {
     Export-ModuleMember -Function $publicFunctions
-    Write-Verbose "InfraCode.ZertoZVM: Exported $($publicFunctions.Count) public function(s)."
+    Write-Verbose "ZertoZVM.APIWrapper: Exported $($publicFunctions.Count) public function(s)."
 }

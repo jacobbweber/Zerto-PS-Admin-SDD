@@ -39,12 +39,14 @@ function Start-ZertoFailover {
     )
 
     process {
+        Assert-ZertoSession
+
         if ($PSCmdlet.ShouldProcess($VpgIdentifier, 'Start Zerto Live Failover')) {
             $body = @{}
             if ($CheckpointIdentifier) { $body.CheckpointIdentifier = $CheckpointIdentifier }
             if ($VmIdentifiers) { $body.VmIdentifiers = $VmIdentifiers }
 
-            Invoke-ZertoRequest -Endpoint "vpgs/$VpgIdentifier/failover" -Method 'Post' -Body $body
+            Invoke-ZertoRequest -Method 'POST' -UriPath "vpgs/$VpgIdentifier/failover" -Body $body
         }
     }
 }

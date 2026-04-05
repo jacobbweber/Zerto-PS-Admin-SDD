@@ -5,7 +5,7 @@ function Disconnect-ZertoZVM {
 
     .DESCRIPTION
         Issues DELETE /session to invalidate the server-side token, then clears
-        all session state from the InfraCode.ZertoZVM module scope. Safe to call
+        all session state from the ZertoZVM.APIWrapper module scope. Safe to call
         even if the connection is already closed.
 
     .EXAMPLE
@@ -21,7 +21,7 @@ function Disconnect-ZertoZVM {
 
     if ($PSCmdlet.ShouldProcess($script:ZertoSession.BaseUri, 'Disconnect Zerto ZVM session')) {
         try {
-            Invoke-ZertoRequest -Endpoint 'session' -Method 'Delete'
+            Invoke-ZertoRequest -Method 'DELETE' -UriPath 'session'
             Write-Verbose "Disconnect-ZertoZVM: Session deleted successfully."
         }
         catch {
@@ -29,11 +29,13 @@ function Disconnect-ZertoZVM {
         }
         finally {
             # Always clear local state
-            $script:ZertoSession.BaseUri = $null
+            $script:ZertoSession.BaseUri = [string]::Empty
             $script:ZertoSession.ApiVersion = 'v1'
             $script:ZertoSession.Headers = @{}
             $script:ZertoSession.SkipCertificateCheck = $false
             $script:ZertoSession.Connected = $false
+            $script:ZertoSession.TokenTimestamp = [DateTime]::MinValue
+            $script:ZertoSession.CachedCredential = $null
             Write-Verbose "Disconnect-ZertoZVM: Local session state cleared."
         }
     }

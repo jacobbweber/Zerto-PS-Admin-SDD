@@ -2,40 +2,9 @@ function Connect-ZertoZVM {
     <#
     .SYNOPSIS
         Establishes an authenticated session with a Zerto ZVM.
-
+    
     .DESCRIPTION
-        Authenticates against the Zerto ZVM REST API and stores the session token,
-        base URI, and API version in module-scoped state. Must be called before
-        any other InfraCode.ZertoZVM functions.
-
-    .PARAMETER ZVMHost
-        Hostname or IP address of the Zerto ZVM (e.g. "zvm.example.com" or "192.168.1.10").
-
-    .PARAMETER Port
-        TCP port of the ZVM. Defaults to 9669.
-
-    .PARAMETER ApiVersion
-        API version string. Defaults to "v1".
-
-    .PARAMETER Credential
-        PSCredential containing the ZVM username and password.
-        If omitted, Get-Credential is called interactively.
-
-    .PARAMETER UseSsl
-        Use HTTPS (default). Pass -UseSsl:$false for plain HTTP (lab/sim only).
-
-    .PARAMETER SkipCertificateCheck
-        Skip TLS certificate validation. Useful for self-signed lab certificates.
-
-    .EXAMPLE
-        Connect-ZertoZVM -ZVMHost "zvm.lab.local" -Credential (Get-Credential) -SkipCertificateCheck
-
-    .EXAMPLE
-        $cred = [pscredential]::new('admin', (ConvertTo-SecureString 'pass' -AsPlainText -Force))
-        Connect-ZertoZVM -ZVMHost "localhost" -Port 9669 -Credential $cred -SkipCertificateCheck
-
-    .OUTPUTS
-        PSCustomObject with ZVMHost, ApiVersion, and Connected status.
+        Refactored to support silent re-authentication and session tracking.
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
@@ -44,8 +13,7 @@ function Connect-ZertoZVM {
         [string] $ZVMHost,
 
         [Parameter()]
-        [ValidateRange(1, 65535)]
-        [int] $Port,
+        [int] $Port = 9669,
 
         [Parameter()]
         [string] $ApiVersion = 'v1',
@@ -53,7 +21,7 @@ function Connect-ZertoZVM {
         [Parameter()]
         [System.Management.Automation.PSCredential]
         [System.Management.Automation.Credential()]
-        $Credential = (Get-Credential -Message "Enter Zerto ZVM credentials"),
+        $Credential,
 
         [Parameter()]
         [switch] $UseSsl = $true,
@@ -62,17 +30,31 @@ function Connect-ZertoZVM {
         [switch] $SkipCertificateCheck
     )
 
+    # 1. Handle Silent Re-auth / Credential Bootstrapping
+    # If no credential provided, check if we have one cached in script scope
+    if ($null -eq $Credential) {
+        if ($null -ne $script:ZertoSession.CachedCredential) {
+            $Credential = $script:ZertoSession.CachedCredential
+            Write-Verbose "Connect-ZertoZVM: Using cached credentials for re-authentication."
+        }
+        else {
+            # Fallback to interactive only if absolutely necessary
+            $Credential = Get-Credential -Message "Enter Zerto ZVM credentials"
+        }
+    }
+
     $scheme = if ($UseSsl) { 'https' } else { 'http' }
     $baseUri = if ($Port) { "${scheme}://${ZVMHost}:${Port}" } else { "${scheme}://${ZVMHost}" }
 
-    # Store session state (partial — not yet Connected)
+    # Initialize/Reset session state
     $script:ZertoSession.BaseUri = $baseUri
     $script:ZertoSession.ApiVersion = $ApiVersion
     $script:ZertoSession.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
     $script:ZertoSession.Headers = @{}
     $script:ZertoSession.Connected = $false
+    $script:ZertoSession.CachedCredential = $Credential # Cache for silent refresh
 
-    # Build auth header from credential (Basic auth for session creation)
+    # Build auth header
     $plainUser = $Credential.UserName
     $plainPass = $Credential.GetNetworkCredential().Password
     $encoded = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${plainUser}:${plainPass}"))
@@ -91,29 +73,27 @@ function Connect-ZertoZVM {
         Write-Verbose "Connect-ZertoZVM: Authenticating to $sessionUri"
         $response = Invoke-RestMethod @irmParams
 
-        # The token arrives in the response body or a header depending on ZVM version.
-        # v1 returns the token as a plain string in the body.
         $token = if ($response -is [string]) { $response } else { $response.sessionToken }
 
         if ([string]::IsNullOrWhiteSpace($token)) {
             throw "Authentication succeeded but no session token was returned."
         }
 
+        # FINAL SUCCESS STATE
         $script:ZertoSession.Headers = @{ 'x-zerto-session' = $token }
         $script:ZertoSession.Connected = $true
+        $script:ZertoSession.TokenTimestamp = [DateTime]::UtcNow # MANDATORY for Assert-ZertoSession
 
-        [PSCustomObject]@{
-            ZVMHost    = $ZVMHost
-            Port       = $Port
-            ApiVersion = $ApiVersion
-            Connected  = $true
+        return [PSCustomObject]@{
+            ZVMHost        = $ZVMHost
+            Port           = $Port
+            ApiVersion     = $ApiVersion
+            Connected      = $true
+            TokenTimestamp = $script:ZertoSession.TokenTimestamp
         }
     }
     catch {
-        # Reset session on failure
-        $script:ZertoSession.BaseUri = $null
         $script:ZertoSession.Connected = $false
-        $script:ZertoSession.Headers = @{}
         throw "Connect-ZertoZVM failed: $_"
     }
 }
