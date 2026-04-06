@@ -1,8 +1,9 @@
 #Requires -Modules @{ModuleName='Pester';ModuleVersion='5.0.0'}
 
+Import-Module "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psd1" -Force
+
 BeforeAll {
     . "$PSScriptRoot\TestHelper.ps1"
-    Import-Module "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psd1" -Force
 }
 
 InModuleScope "ZertoZVM.APIWrapper" {

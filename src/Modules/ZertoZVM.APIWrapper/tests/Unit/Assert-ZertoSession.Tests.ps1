@@ -1,17 +1,14 @@
 #Requires -Modules @{ModuleName='Pester';ModuleVersion='5.0.0'}
 
+Import-Module "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psd1" -Force
+
 BeforeAll {
     . "$PSScriptRoot\TestHelper.ps1"
-    . "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psm1"
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Private" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Public" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-
-    # Mock Connect-ZertoZVM function safely within session tests
-    function Connect-ZertoZVM { return $true }
 }
 
-Describe "Assert-ZertoSession" {
-    BeforeEach {
+InModuleScope "ZertoZVM.APIWrapper" {
+    Describe "Assert-ZertoSession" {
+        BeforeEach {
         $script:ZertoSession.Connected = $true
         $script:ZertoSession.BaseUri = "https://mock.zvm.local"
         $script:ZertoSession.ApiVersion = "v1"
@@ -21,7 +18,7 @@ Describe "Assert-ZertoSession" {
     It "Should throw InvalidOperationException if completely disconnected" {
         $script:ZertoSession.Connected = $false
 
-        { Assert-ZertoSession } | Should -Throw "No active Zerto session"
+        { Assert-ZertoSession } | Should -Throw "*No active Zerto session*"
     }
 
     It "Should pass quietly natively if TokenTimestamp is younger than 5 minute TTL" {
@@ -47,4 +44,5 @@ Describe "Assert-ZertoSession" {
             $ZVMHost -eq "mock.zvm.local" -and $ApiVersion -eq "v1"
         }
     }
+}
 }

@@ -20,10 +20,10 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **PowerShell Architecture**: Modules in `src/Modules/`, Controllers in `src/Controllers/`
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- Paths shown below assume PowerShell architecture - adjust based on plan.md structure
 
 <!-- 
   ============================================================================
@@ -83,14 +83,14 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Unit test for [Module Function] in src/Modules/[Module]/Tests/[Function].Tests.ps1
+- [ ] T011 [P] [US1] Integration test for [Controller] in src/Controllers/Tests/Integration/[Controller].Tests.ps1
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T014 [US1] Implement [Service] in src/services/[service].py (depends on T012, T013)
+- [ ] T012 [P] [US1] Implement [Module Function] in src/Modules/[Module]/Public/[Function].ps1
+- [ ] T013 [P] [US1] Create mock data configuration in src/Controllers/Tests/Shared/mocks.ps1
+- [ ] T014 [US1] Implement [Controller] orchestration script in src/Controllers/[Controller].ps1
 - [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
 - [ ] T016 [US1] Add validation and error handling
 - [ ] T017 [US1] Add logging for user story 1 operations
@@ -199,12 +199,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+Task: "Unit test for [Module Function] in src/Modules/[Module]/Tests/[Function].Tests.ps1"
+Task: "Integration test for [Controller] in src/Controllers/Tests/Integration/[Controller].Tests.ps1"
 
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
+# Launch all implementations for User Story 1 together:
+Task: "Implement [Module Function] in src/Modules/[Module]/Public/[Function].ps1"
+Task: "Implement [Controller] orchestration script in src/Controllers/[Controller].ps1"
 ```
 
 ---

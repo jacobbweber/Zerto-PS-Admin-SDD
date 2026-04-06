@@ -1,13 +1,13 @@
 #Requires -Modules @{ModuleName='Pester';ModuleVersion='5.0.0'}
 
+Import-Module "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psd1" -Force
+
 BeforeAll {
     . "$PSScriptRoot\TestHelper.ps1"
-    . "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psm1"
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Private" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Public" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
 }
 
-Describe "Invoke-ZertoRequest" {
+InModuleScope "ZertoZVM.APIWrapper" {
+    Describe "Invoke-ZertoRequest" {
     BeforeEach {
         # Reset Session for each context isolation
         $script:ZertoSession.BaseUri = "https://mock.zvm.local"

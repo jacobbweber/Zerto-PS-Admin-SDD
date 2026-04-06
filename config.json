@@ -1,0 +1,32 @@
+{
+    "base": {
+        "logging": {
+            "paths": {
+                "logdir": "./logdir",
+                "archive": "./archive",
+                "state": "./state",
+                "telemetry": "./telemetry"
+            },
+            "filenames": {
+                "syslog": "syslog.log",
+                "devlog": "devlog.log",
+                "telemetry": "telemetry.json",
+                "csv": "results.csv"
+            }
+        },
+        "telemetry": {
+            "hostname": "localhost",
+            "username": "admin",
+            "business_unit": "IT-Ops"
+        },
+        "auth": {
+            "vmware_user": "administrator@vsphere.local",
+            "vmware_password": "password123"
+        },
+        "email": {
+            "smpt_server": "smtp.example.com",
+            "default_from": "zerto-automation@example.com",
+            "default_to": "admin@example.com"
+        }
+    }
+}

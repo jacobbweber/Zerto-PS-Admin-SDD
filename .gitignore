@@ -3,3 +3,10 @@ TestResults.xml
 *.log
 .vscode/
 .idea/
+# Zerto Project
+telemetry/
+archive/
+state/
+logdir/
+*.csv
+pester-errors.txt

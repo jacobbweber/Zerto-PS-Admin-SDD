@@ -1,0 +1,26 @@
+**********************
+PowerShell transcript start
+Start time: 20260406052220
+Username: JARVIS\jacob
+RunAs User: JARVIS\jacob
+Configuration Name: 
+Machine: JARVIS (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -Command Start-Transcript -Path transcript.txt; Continue = 'Continue'; Invoke-Pester -Path src/Controllers/Tests/Integration/Get-VPGJournalSettings.Tests.ps1 -Output Detailed; Stop-Transcript
+Process ID: 80704
+PSVersion: 7.5.5
+PSEdition: Core
+GitCommitId: 7.5.5
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+Transcript started, output file is transcript.txt
+PS>$global:?
+True
+**********************
+PowerShell transcript end
+End time: 20260406052220
+**********************

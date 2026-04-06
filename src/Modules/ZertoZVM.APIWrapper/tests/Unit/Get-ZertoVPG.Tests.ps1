@@ -1,16 +1,16 @@
 #Requires -Modules @{ModuleName='Pester';ModuleVersion='5.0.0'}
 
+Import-Module "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psd1" -Force
+
 BeforeAll {
     . "$PSScriptRoot\TestHelper.ps1"
-    . "$PSScriptRoot\..\..\ZertoZVM.APIWrapper.psm1"
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Private" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-    Get-ChildItem -Path "$PSScriptRoot\..\..\Public" -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-    
-    # Needs Mock for Assert-ZertoSession locally
-    function Assert-ZertoSession {}
 }
 
-Describe "Get-ZertoVPG" {
+InModuleScope "ZertoZVM.APIWrapper" {
+    # Needs Mock for Assert-ZertoSession locally
+    function Assert-ZertoSession {}
+
+    Describe "Get-ZertoVPG" {
     It "Should invoke ZertoRequest with default path fetching all objects" {
         Mock Invoke-ZertoRequest { return "mock-all-objects" }
 

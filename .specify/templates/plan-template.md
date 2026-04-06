@@ -56,17 +56,18 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+# [REMOVE IF UNUSED] Option 1: PowerShell Architecture (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
+├── Controllers/
+│   └── Tests/
+│       ├── Integration/      # Controller integration tests
+│       └── Shared/           # Shared mocks
+└── Modules/
+    └── [ModuleName]/         # Self-contained module
+        ├── Public/
+        ├── Private/
+        ├── Tests/            # Module unit tests
+        └── Docs/
 
 # [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
 backend/

@@ -13,7 +13,7 @@ function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [ValidateSet('Info', 'Warn', 'Error', 'Debug')]
+        [ValidateSet('Information', 'Warning', 'Error', 'Debug')]
         [string]$Level,
         
         [Parameter(Mandatory)]
