@@ -1,0 +1,24 @@
+{
+  "VpgList": [
+    {
+      "VpgIdentifier": "abc-123",
+      "Name": "ProdVPG",
+      "Status": "MeetingSLA",
+      "SubStatus": "None",
+      "ActualRPO": 5,
+      "ConfiguredRPO": 15
+    },
+    {
+      "VpgIdentifier": "def-456",
+      "Name": "DevVPG",
+      "Status": "MeetingSLA",
+      "SubStatus": "None",
+      "ActualRPO": 10,
+      "ConfiguredRPO": 30
+    }
+  ],
+  "TaskResponse": {
+    "TaskId": "tsk-789"
+  },
+  "EmptyResponse": {}
+}
